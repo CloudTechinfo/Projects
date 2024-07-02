@@ -1,0 +1,22 @@
+sudo apt-get update -y                               #Update the machine
+sudo apt-get install apache2 libapache2-mod-php -y   #Install apache server and php
+sudo apt-get install mysql-server -y                 #Install mysql server
+sudo apt-get install php php-mbstring php-gd php-xml php-bcmath php-ldap php-mysql -y #Install php modules    
+wget https://repo.zabbix.com/zabbix/5.0/ubuntu/pool/main/z/zabbix-release/zabbix-release_5.0-1+bionic_all.deb #Download the zabbix repositories
+sudo dpkg -i zabbix-release_5.0-1+bionic_all.deb     #Run the Zabbix repositories
+sudo apt update -y                                   #Update the machine.
+sudo apt install zabbix-server-mysql zabbix-frontend-php zabbix-apache-conf zabbix-agent -y #Install Zabbix server, agent and the required modules.
+sudo mysql --defaults-file=/etc/mysql/debian.cnf     #Connect to the database
+create database zabbix character set utf8 collate utf8_bin; #Create a database "zabbix"
+create user zabbix@localhost identified by 'zabbix'; #Create a DB user "zabbix"
+grant all privileges on zabbix.* to zabbix@localhost; #Grant permissions to the user "zabbix"
+quit;                                                # Exit from the DB  
+sudo zcat /usr/share/doc/zabbix-server-mysql*/create.sql.gz | mysql -uzabbix -p zabbix #Copy the schema to the DB 
+sudo vi /etc/zabbix/zabbix_server.conf ---- Set the "DBPassword=zabbix" #Setup the DB password in the server configuration file
+sudo vi /etc/zabbix/apache.conf ---- Set php_value date.timezone "Asia/Kolkata" #Setup the time zone in the apache configuration file
+sudo systemctl restart zabbix-server zabbix-agent apache2 #Restart the server and the agent
+sudo systemctl enable zabbix-server zabbix-agent apache2 #Enable the server and the agent
+Allow the rules if you are using Cloud (in my case AWS).Edit the security group and add 10050 and 10051 rules
+Access the application using the IP address. Access the app ---ip-address/zabbix    
+  
+
